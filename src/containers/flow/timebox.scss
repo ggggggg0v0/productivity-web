@@ -1,0 +1,70 @@
+/* App.css */
+.grid-container {
+  display: flex;
+  flex-direction: column; /* 主軸方向為垂直排列 */
+}
+
+.row {
+  display: flex;
+  &:hover {
+    background-color: #464b4e3b;
+  }
+}
+
+.currentRow {
+  background-color: #464b4e3b;
+}
+
+.square {
+  width: 13px;
+  height: 13px;
+  margin: 1.5px; /* 調整方形之間的間距 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.hourText {
+  color: #3c4042;
+  margin-right: 5px;
+}
+
+.squareActive0 {
+  background-color: #2a7864;
+  &:hover {
+    background-color: #338e77;
+    cursor: pointer;
+  }
+}
+
+.squareActive1 {
+  background-color: #576f69;
+  &:hover {
+    border-color: #808b89;
+    cursor: pointer;
+  }
+}
+
+.squareDefaultStyle {
+  border: 0.5px solid #3c4042;
+}
+
+.now0 {
+  background-color: #2a7864;
+  animation: blink 1.3s infinite; /* 应用名为 "blink" 的动画，持续时间1秒，无限循环 */
+}
+
+.now1 {
+  background-color: #576f69;
+  animation: blink 1.3s infinite; /* 应用名为 "blink" 的动画，持续时间1秒，无限循环 */
+}
+
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 10%; /* 0% 和 100%时完全透明 */
+  }
+  50% {
+    opacity: 1; /* 50%时完全不透明 */
+  }
+}
