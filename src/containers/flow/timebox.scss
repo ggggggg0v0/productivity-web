@@ -29,18 +29,10 @@
   margin-right: 5px;
 }
 
-.squareActive0 {
+.squareActive {
   background-color: #2a7864;
   &:hover {
     background-color: #338e77;
-    cursor: pointer;
-  }
-}
-
-.squareActive1 {
-  background-color: #576f69;
-  &:hover {
-    border-color: #808b89;
     cursor: pointer;
   }
 }
@@ -49,22 +41,17 @@
   border: 0.5px solid #3c4042;
 }
 
-.now0 {
-  background-color: #2a7864;
-  animation: blink 1.3s infinite; /* 应用名为 "blink" 的动画，持续时间1秒，无限循环 */
-}
-
-.now1 {
+.now {
   background-color: #576f69;
-  animation: blink 1.3s infinite; /* 应用名为 "blink" 的动画，持续时间1秒，无限循环 */
+  animation: blink 1.3s infinite;
 }
 
 @keyframes blink {
   0%,
   100% {
-    opacity: 10%; /* 0% 和 100%时完全透明 */
+    opacity: 10%;
   }
   50% {
-    opacity: 1; /* 50%时完全不透明 */
+    opacity: 1;
   }
 }

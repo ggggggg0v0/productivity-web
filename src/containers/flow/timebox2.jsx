@@ -71,7 +71,6 @@ function C({ record, handleClickBox, currentTime, action }) {
       isCurrentRow = hasActive;
 
       const isProcessing =
-        action === work &&
         currentTime.start > 0 &&
         currentTime.start < currentMinute &&
         currentTimeMinute > currentMinute;
@@ -85,12 +84,8 @@ function C({ record, handleClickBox, currentTime, action }) {
           }}
           key={`row_${currentMinute}`}
           className={classNames(
-            {
-              // 顯示下一次的顏色
-              [`now${activeIndex % 1 ? 0 : 1}`]:
-                currentTimeMinute === currentMinute,
-            },
-            { [`squareActive${activeIndex % 2}`]: hasActive || isProcessing },
+            { now: currentTimeMinute === currentMinute },
+            { squareActive: action === work && (hasActive || isProcessing) },
             { squareDefaultStyle: !hasActive },
             "square"
           )}
