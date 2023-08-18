@@ -6,7 +6,7 @@ import { work } from "./consts";
 import { useCurrentMinute } from "@/utils/time";
 
 // utils
-import { getCurrentMinute } from "@/utils/time";
+import { getCurrentHour } from "@/utils/time";
 
 // styles
 import "./timebox.scss"; // 可能需要自行設置 CSS 樣式
@@ -62,13 +62,10 @@ function C({ record, handleClickBox, currentTime, action }) {
       </div>
     );
 
-    let isCurrentRow = false;
-
     for (let row = 0; row < numRows; row++) {
       const currentMinute = row + column * 60 + 1;
 
       let [hasActive, activeIndex] = checkHasActive(currentMinute, record);
-      isCurrentRow = hasActive;
 
       const isProcessing =
         currentTime.start > 0 &&
@@ -96,7 +93,10 @@ function C({ record, handleClickBox, currentTime, action }) {
     grid.push(
       <div
         key={`column_${column}`}
-        className={classNames({ currentRow: isCurrentRow }, "row")}
+        className={classNames(
+          { currentRow: getCurrentHour() === column },
+          "row"
+        )}
       >
         {columns}
       </div>

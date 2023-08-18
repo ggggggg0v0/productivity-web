@@ -21,6 +21,13 @@ export const getCurrentMinute = () => {
   return currentMinute + currentHour * 60;
 };
 
+export const getCurrentHour = () => {
+  // 創建一個新的 Date 物件，表示當前時間
+  const currentDate = new Date();
+
+  return currentDate.getHours();
+};
+
 export const useCurrentMinute = () => {
   const [time, setTime] = useState(getCurrentMinute());
 
