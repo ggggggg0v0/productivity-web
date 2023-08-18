@@ -19,17 +19,14 @@ export default function Setting(props) {
 
   return (
     <>
-      <Menu>
-        <MenuButton
-          as={IconButton}
-          aria-label="Options"
-          icon={<HamburgerIcon />}
-          onClick={onOpen}
-          colorScheme="white"
-          border="none"
-          boxShadow="none"
-        />
-      </Menu>
+      <IconButton
+        colorScheme="white"
+        border="none"
+        boxShadow="none"
+        onClick={onOpen}
+        icon={<HamburgerIcon boxSize={6} />}
+      />
+
       <Drawer
         colorScheme="#242627"
         placement={"right"}

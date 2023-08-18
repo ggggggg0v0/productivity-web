@@ -34,7 +34,7 @@ function C({ record, handleClickBox, currentTime, action }) {
   const timerow = [
     <div key="hourText" className={classNames("square", "hourText")} />,
   ];
-  // 第 0 row 已經預先放到 timerow 李了
+  // 第 0 row 已經預先放到 timerow 裡了
   for (let i = 1; i < 61; i++) {
     timerow.push(
       <div
@@ -48,7 +48,7 @@ function C({ record, handleClickBox, currentTime, action }) {
   }
 
   grid.push(
-    <div key="hourTextWrap" className="row">
+    <div key="hourTextWrap" style={{ display: "flex" }}>
       {timerow}
     </div>
   );

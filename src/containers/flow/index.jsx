@@ -6,6 +6,7 @@ import {
   Box,
   ChakraProvider,
   useDisclosure,
+  Center,
 } from "@chakra-ui/react";
 import { CalendarIcon } from "@chakra-ui/icons";
 
@@ -233,64 +234,70 @@ function App() {
         selected={selected}
       />
       <CalandarModal {...modalCalandarClosure} />
-
-      <div className="App" style={{ height: "85vh", background: "#242627" }}>
-        {/* <Flex alignItems="end" flexDirection="column"> */}
-        <Flex justifyContent="space-between" flexDirection="row">
-          <IconButton
-            colorScheme="white"
-            border="none"
-            boxShadow="none"
-            onClick={() => {
-              modalCalandarClosure.onOpen();
-            }}
-            icon={<CalendarIcon />}
-          />
-          <Box>
-            <Setting
-              handleSetTime={handleSetTime}
-              isIntervalRunning={isIntervalRunning}
-            />
-          </Box>
-        </Flex>
-        <Flex alignItems="center" flexDirection="column">
-          <Text fontWeight="bold" fontSize="7xl" color="white">
-            {`${
-              Math.floor(time / 60) < 10
-                ? `0${Math.floor(time / 60)}`
-                : `${Math.floor(time / 60)}`
-            }:${time % 60 < 10 ? `0${time % 60}` : time % 60}`}
-          </Text>
-          <Flex>
+      <Center>
+        <div
+          className="App"
+          style={{ width: "1100px", height: "100vh", background: "#242627" }}
+        >
+          {/* <Flex alignItems="end" flexDirection="column"> */}
+          <Flex justifyContent="space-between" flexDirection="row">
             <IconButton
-              // width="7rem"
-              onClick={!isIntervalRunning ? startCountdown : triggerResetDialog}
-              icon={
-                !isIntervalRunning ? (
-                  <ChevronRightIcon boxSize={10} />
-                ) : (
-                  <RepeatClockIcon boxSize={6} />
-                )
-              }
-              color={!isIntervalRunning ? "#2A7864" : "white"}
-              colorScheme="none"
+              colorScheme="white"
               border="none"
               boxShadow="none"
+              onClick={() => {
+                modalCalandarClosure.onOpen();
+              }}
+              icon={<CalendarIcon boxSize={6} />}
             />
+            <Box>
+              <Setting
+                handleSetTime={handleSetTime}
+                isIntervalRunning={isIntervalRunning}
+              />
+            </Box>
           </Flex>
-        </Flex>
+          <Flex alignItems="center" flexDirection="column">
+            <Text fontWeight="bold" fontSize="7xl" color="white">
+              {`${
+                Math.floor(time / 60) < 10
+                  ? `0${Math.floor(time / 60)}`
+                  : `${Math.floor(time / 60)}`
+              }:${time % 60 < 10 ? `0${time % 60}` : time % 60}`}
+            </Text>
+            <Flex>
+              <IconButton
+                // width="7rem"
+                onClick={
+                  !isIntervalRunning ? startCountdown : triggerResetDialog
+                }
+                icon={
+                  !isIntervalRunning ? (
+                    <ChevronRightIcon boxSize="4em" />
+                  ) : (
+                    <RepeatClockIcon boxSize="2em" />
+                  )
+                }
+                color={!isIntervalRunning ? "#2A7864" : "white"}
+                colorScheme="none"
+                border="none"
+                boxShadow="none"
+              />
+            </Flex>
+          </Flex>
 
-        <Flex alignItems="center" flexDirection="column">
-          <Box mt="60px">
-            <TimeBox2
-              record={record}
-              handleClickBox={handleClickBox}
-              currentTime={newTaskTime}
-              action={action}
-            />
-          </Box>
-        </Flex>
-      </div>
+          <Flex alignItems="center" flexDirection="column">
+            <Box mt="60px">
+              <TimeBox2
+                record={record}
+                handleClickBox={handleClickBox}
+                currentTime={newTaskTime}
+                action={action}
+              />
+            </Box>
+          </Flex>
+        </div>
+      </Center>
     </ChakraProvider>
   );
 }
