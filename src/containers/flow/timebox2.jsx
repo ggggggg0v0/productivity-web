@@ -82,7 +82,7 @@ function C({ record, handleClickBox, currentTime, action }) {
           key={`row_${currentMinute}`}
           className={classNames(
             { now: currentTimeMinute === currentMinute },
-            { squareActive: action === work && (hasActive || isProcessing) },
+            { squareActive: hasActive || isProcessing },
             { squareDefaultStyle: !hasActive },
             "square"
           )}
