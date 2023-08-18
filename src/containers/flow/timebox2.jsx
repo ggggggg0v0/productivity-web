@@ -68,6 +68,7 @@ function C({ record, handleClickBox, currentTime, action }) {
       let [hasActive, activeIndex] = checkHasActive(currentMinute, record);
 
       const isProcessing =
+        action === work &&
         currentTime.start > 0 &&
         currentTime.start < currentMinute &&
         currentTimeMinute > currentMinute;

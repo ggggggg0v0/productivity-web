@@ -9,7 +9,7 @@ import {
 } from "@chakra-ui/react";
 import { CalendarIcon } from "@chakra-ui/icons";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useReducer } from "react";
 import { notify } from "@/utils/notification";
 
 // import { appWindow } from "@tauri-apps/api/window";
@@ -47,33 +47,101 @@ function useAudio() {
   return audioElement;
 }
 
-function useStateAndRef(initial) {
-  const [value, setValue] = useState(initial);
-  const valueRef = useRef(value);
-  valueRef.current = value;
-  return [value, setValue, valueRef];
-}
+const reducer = (state, action) => {
+  let newTask = [...state.record];
 
-function useRecord() {
-  const recordCached = flowService.getRecordList();
-  const [record, setRecord] = useState(recordCached);
-  const [time, setTime] = useState({ start: 0, end: 0 });
+  switch (action.type) {
+    case "START_COUNTDOWN":
+      return {
+        ...state,
+        isIntervalRunning: true,
+        newTaskTime: { ...state.newTaskTime, start: getCurrentMinute() },
+      };
 
-  const start = useCallback(() => {
-    setTime({ ...time, start: getCurrentMinute() });
-  }, [time]);
+    case "STOP_COUNTDOWN":
+      const isWork = state.action === work;
+      const nextAction = isWork ? relax : work;
 
-  const end = useCallback(() => {
-    setTime({});
-    const newRecord = { ...time, end: getCurrentMinute() };
-    record.push(newRecord);
-    setRecord(record);
+      if (isWork) {
+        newTask.push({
+          ...state.newTaskTime,
+          end: getCurrentMinute(),
+        });
+        isWork && flowService.setRecordList(newTask);
+      }
 
-    flowService.setRecordList(record);
-  }, [time, record]);
+      return {
+        ...state,
+        time: isWork ? state.workTime : state.relaxTime,
+        isIntervalRunning: nextAction === relax,
+        action: nextAction,
+        newTaskTime: { start: 0, end: 0 },
+        record: isWork ? newTask : state.record,
+      };
+    case "COUNTDOWN":
+      return { ...state, time: state.time - 1 };
 
-  return [record, start, end, setRecord, time];
-}
+    case "RESET_COUNTDOWN":
+      return {
+        ...state,
+        time: state.action === work ? state.workTime : state.relaxTime,
+        isIntervalRunning: false,
+        newTaskTime: { start: 0, end: 0 },
+      };
+
+    case "SELECT_CONTENT":
+      return {
+        ...state,
+        selected: {
+          ...state.selected,
+          ...action.payload,
+        },
+      };
+
+    case "CLEAR_SELECT_CONTENT":
+      return {
+        ...state,
+        selected: { recordIndex: "", record: "" },
+      };
+
+    case "SET_COUNTDOWN_TIME":
+      const time = action.payload.second;
+      return {
+        ...state,
+        time,
+        [`${action.payload.action}Time`]: time,
+      };
+
+    case "HANDLE_SAVE_RECORD":
+      newTask[action.payload.recordIndex] = {
+        ...action.payload.record,
+        content: action.payload.content,
+      };
+      flowService.setRecordList(newTask);
+
+      return {
+        ...state,
+        record: newTask,
+      };
+
+    default:
+      return state;
+  }
+};
+
+const initWorkTime = 900; // second
+const initRelaxTime = 300; // second
+
+const initState = {
+  workTime: initWorkTime,
+  relaxTime: initRelaxTime,
+  action: work,
+  isIntervalRunning: false,
+  selected: {},
+  time: initWorkTime,
+  record: flowService.getRecordList(),
+  newTaskTime: { start: 0, end: 0 },
+};
 
 function App() {
   // Context controller
@@ -81,117 +149,78 @@ function App() {
   const modalCalandarClosure = useDisclosure();
 
   // Current State
-  const initWorkTime = 90; // second
-  const initRelaxTime = 90; // second
-  const [workTime, setWorkTime] = useState(0);
-  const [relaxTime, setRelaxTime] = useState(0);
+  const [
+    { action, isIntervalRunning, selected, time, record, newTaskTime },
+    dispatch,
+  ] = useReducer(reducer, initState);
+
   const audioElement = useAudio();
-  const [record, start, end, setRecord, currentTime] = useRecord();
-
-  const [action, setAction] = useState(work);
-  const [isIntervalRunning, setIsIntervalRunning] = useState(false);
-  const [time, setTime, refTime] = useStateAndRef(initWorkTime);
-  const [selected, setSelected] = useState({});
-
-  const toggleTimer = () => {
-    startCountdown();
-    // invoke('my_custom_command',{ invokeMessage: 'asdfsdf!' }).then((message) => console.log("heyhet", message))
-  };
-
-  const triggerResetDialog = () => {
-    stopCountdown();
-    setTime(
-      action === work ? workTime || initWorkTime : relaxTime || initRelaxTime
-    );
-  };
 
   const startCountdown = () => {
-    action === work && start();
-    setIsIntervalRunning(true);
+    dispatch({ type: "START_COUNTDOWN" });
   };
 
   const stopCountdown = () => {
-    setIsIntervalRunning(false);
+    dispatch({ type: "STOP_COUNTDOWN" });
+  };
+
+  const triggerResetDialog = () => {
+    dispatch({ type: "RESET_COUNTDOWN" });
   };
 
   useEffect(() => {
-    let interval;
-    // console.log("isIntervalRunning", action, isIntervalRunning);
-    if (isIntervalRunning) {
-      interval = setInterval(() => {
-        // console.log("current", action, refTime.current);
-        if (refTime.current > 0) {
-          setTime((time) => time - 1);
-        } else if (refTime.current === 0) {
-          // desktop notification
-          notify("Time's up!");
-
-          stopCountdown();
-          clearInterval(interval);
-          audioElement.play();
-          // appWindow.setFullscreen(true);
-
-          // 如果是工作階段的話的倒數結束就直接開始「休息」
-          if (action === work) {
-            end();
-
-            setTimeout(() => {
-              setTime(relaxTime || initRelaxTime);
-              setAction(relax);
-              startCountdown();
-              return;
-            }, 1000);
-            return;
-          }
-
-          setTime(workTime || initWorkTime);
-          setAction(() => work);
-          // appWindow.setFullscreen(false);
-        }
+    if (isIntervalRunning && time > 0) {
+      const timer = setTimeout(() => {
+        dispatch({ type: "COUNTDOWN" });
       }, 1000);
+      // 沒有加這行會在執行 RESET_COUNTDOWN 後多扣一秒
+      return () => clearTimeout(timer);
     }
-
-    return () => {
-      clearInterval(interval);
-    };
-  }, [
-    isIntervalRunning,
-    audioElement,
-    refTime,
-    setTime,
-    action,
-    workTime,
-    relaxTime,
-  ]);
+    if (time === 0) {
+      notify("Time's up!");
+      audioElement.play();
+      stopCountdown();
+    }
+  }, [isIntervalRunning, time, audioElement]);
 
   const handleSetTime = (type, second) => {
     switch (type) {
       case work:
-        setWorkTime(second);
-        setTime(second);
+        dispatch({
+          type: "SET_COUNTDOWN_TIME",
+          payload: { action: work, second },
+        });
         break;
       case relax:
-        setRelaxTime(second);
-        setTime(second);
+        dispatch({
+          type: "SET_COUNTDOWN_TIME",
+          payload: { action: relax, second },
+        });
     }
   };
 
   const handleClickBox = (values) => {
-    setSelected({
-      ...selected,
-      recordIndex: values.activeIndex,
-      record: record[values.activeIndex],
+    dispatch({
+      type: "SELECT_CONTENT",
+      payload: {
+        recordIndex: values.activeIndex,
+        record: record[values.activeIndex],
+      },
     });
+
     modalClosure.onOpen();
   };
 
   const handleSave = (values) => {
-    flowService.handleSave({ ...values, ...selected }, setRecord);
+    dispatch({
+      type: "HANDLE_SAVE_RECORD",
+      payload: { ...values, ...selected },
+    });
     modalClosure.onClose();
   };
 
   const handleClose = () => {
-    setSelected({});
+    dispatch({ type: "CLEAR_SELECT_CONTENT" });
     modalClosure.onClose();
   };
 
@@ -235,7 +264,7 @@ function App() {
           <Flex>
             <IconButton
               // width="7rem"
-              onClick={!isIntervalRunning ? toggleTimer : triggerResetDialog}
+              onClick={!isIntervalRunning ? startCountdown : triggerResetDialog}
               icon={
                 !isIntervalRunning ? (
                   <ChevronRightIcon boxSize={10} />
@@ -249,7 +278,6 @@ function App() {
               boxShadow="none"
             />
           </Flex>
-          {/* <TimeBox /> */}
         </Flex>
 
         <Flex alignItems="center" flexDirection="column">
@@ -257,7 +285,7 @@ function App() {
             <TimeBox2
               record={record}
               handleClickBox={handleClickBox}
-              currentTime={currentTime}
+              currentTime={newTaskTime}
               action={action}
             />
           </Box>
