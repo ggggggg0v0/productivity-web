@@ -13,6 +13,6 @@ export default defineConfig({
   },
   build: {
     // 改變輸出資料的檔案
-    // outDir: "docs",
+    outDir: "docs",
   },
 });
