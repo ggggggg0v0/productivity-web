@@ -185,7 +185,7 @@ export default function ({ isOpen, onClose }) {
                   const end = timeFormat(el.end);
                   const timeRange = `${start}-${end}`;
                   return (
-                    <Box>
+                    <Box key={timeRange}>
                       <Heading size="lg" color="#242424">
                         {timeRange}
                       </Heading>
