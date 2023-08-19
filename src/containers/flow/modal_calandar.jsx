@@ -4,12 +4,10 @@ import {
   Flex,
 
   // Component
-  Button,
   IconButton,
   Heading,
   Box,
   Stack,
-  Textarea,
   Text,
   Card,
   CardBody,
@@ -53,6 +51,7 @@ export default function ({ isOpen, onClose }) {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const calendarRef = useRef(null);
   const toast = useToast();
+  const todayRecord = flowService.getRecord(date);
 
   const handleOutsideClick = (event) => {
     if (calendarRef.current && !calendarRef.current.contains(event.target)) {
@@ -75,6 +74,29 @@ export default function ({ isOpen, onClose }) {
   const handleOnClose = () => {
     setDate(getToday());
     onClose();
+  };
+
+  const handleCopy = () => {
+    let str = "";
+    todayRecord.forEach(({ start, end, content }) => {
+      const timeRange = `${timeFormat(start)}-${timeFormat(end)}`;
+      str += `${timeRange} ${content || ""}\n`;
+    });
+
+    copyToClipboard(str)
+      .then(() => {
+        !toast.isActive("copied") &&
+          toast({
+            id: "copied",
+            position: "bottom-right",
+            title: "Copied",
+            status: "success",
+            duration: 900,
+          });
+      })
+      .catch((err) => {
+        console.error("error", err);
+      });
   };
 
   return (
@@ -153,22 +175,7 @@ export default function ({ isOpen, onClose }) {
               colorScheme="white"
               // border="none"
               boxShadow="none"
-              onClick={() => {
-                copyToClipboard("sdfsdfd")
-                  .then(() => {
-                    !toast.isActive("copied") &&
-                      toast({
-                        id: "copied",
-                        position: "bottom-right",
-                        title: "Copied",
-                        status: "success",
-                        duration: 900,
-                      });
-                  })
-                  .catch((err) => {
-                    console.error("error", err);
-                  });
-              }}
+              onClick={handleCopy}
               icon={<CopyIcon color="#242627" boxSize={6} />}
             />
           </Box>
@@ -180,7 +187,7 @@ export default function ({ isOpen, onClose }) {
                 divider={<StackDivider borderColor="gray.300" />}
                 spacing="3"
               >
-                {flowService.getRecord(date).map((el) => {
+                {todayRecord.map((el) => {
                   const start = timeFormat(el.start);
                   const end = timeFormat(el.end);
                   const timeRange = `${start}-${end}`;
