@@ -73,7 +73,7 @@ const reducer = (state, action) => {
 
       return {
         ...state,
-        time: isWork ? state.workTime : state.relaxTime,
+        time: nextAction === work ? state.workTime : state.relaxTime,
         isIntervalRunning: nextAction === relax,
         action: nextAction,
         newTaskTime: { start: 0, end: 0 },
@@ -130,8 +130,8 @@ const reducer = (state, action) => {
   }
 };
 
-const initWorkTime = 900; // second
-const initRelaxTime = 300; // second
+const initWorkTime = 10; // second
+const initRelaxTime = 20; // second
 
 const initState = {
   workTime: initWorkTime,
