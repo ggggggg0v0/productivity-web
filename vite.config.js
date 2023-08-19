@@ -6,7 +6,10 @@ export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      "@": "/src", // 将 @ 映射到 src 目录的路径
+      "@": "/src", // 將 @ 映射到 src
     },
+  },
+  build: {
+    outDir: "docs",
   },
 });
