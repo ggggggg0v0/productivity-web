@@ -9,8 +9,7 @@ import {
   Center,
 } from "@chakra-ui/react";
 import { CalendarIcon } from "@chakra-ui/icons";
-
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { notify } from "@/utils/notification";
 
 // import { appWindow } from "@tauri-apps/api/window";
@@ -33,6 +32,10 @@ import { work, relax, initWorkTime, initRelaxTime } from "./consts";
 // utils
 import { getCurrentMinute } from "@/utils/time";
 import { useAudio } from "@/utils/audio";
+
+// styles
+import "./moon.scss";
+import "./meteor.scss";
 
 const reducer = (state, action) => {
   let newTask = [...state.record];
@@ -210,6 +213,19 @@ function App() {
 
   return (
     <ChakraProvider>
+      {action === relax && (
+        <>
+          <div class="meteor-2"></div>
+          <div class="meteor-1"></div>
+          <div class="meteor-3"></div>
+          <div class="meteor-4"></div>
+          <div class="meteor-5"></div>
+          <div class="meteor-6"></div>
+          <div class="meteor-9"></div>
+        </>
+      )}
+
+      <div className={`moon ${action === relax ? "slide-in" : "slide-out"}`} />
       <Modal
         {...modalClosure}
         handleClose={handleClose}
