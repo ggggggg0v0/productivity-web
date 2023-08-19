@@ -10,7 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { CalendarIcon } from "@chakra-ui/icons";
 
-import { useEffect, useState, useReducer } from "react";
+import { useEffect, useReducer } from "react";
 import { notify } from "@/utils/notification";
 
 // import { appWindow } from "@tauri-apps/api/window";
@@ -28,25 +28,11 @@ import TimeBox2 from "./timebox2";
 import Modal from "./modal";
 import CalandarModal from "./modal_calandar";
 
-import { work, relax } from "./consts";
+import { work, relax, initWorkTime, initRelaxTime } from "./consts";
 
 // utils
 import { getCurrentMinute } from "@/utils/time";
-
-function useAudio() {
-  const [audioElement, setAudioElement] = useState(null);
-
-  useEffect(() => {
-    const audio = new Audio(mp3url);
-    audio.onended = () => {
-      audio.currentTime = 0;
-      // setAudioElement(null);
-    };
-    setAudioElement(audio);
-  }, []);
-
-  return audioElement;
-}
+import { useAudio } from "@/utils/audio";
 
 const reducer = (state, action) => {
   let newTask = [...state.record];
@@ -130,9 +116,6 @@ const reducer = (state, action) => {
   }
 };
 
-const initWorkTime = 900; // second
-const initRelaxTime = 300; // second
-
 const initState = {
   workTime: initWorkTime,
   relaxTime: initRelaxTime,
@@ -155,7 +138,7 @@ function App() {
     dispatch,
   ] = useReducer(reducer, initState);
 
-  const audioElement = useAudio();
+  const audioElement = useAudio(mp3url);
 
   const startCountdown = () => {
     dispatch({ type: "START_COUNTDOWN" });
@@ -245,9 +228,7 @@ function App() {
               colorScheme="white"
               border="none"
               boxShadow="none"
-              onClick={() => {
-                modalCalandarClosure.onOpen();
-              }}
+              onClick={modalCalandarClosure.onOpen}
               icon={<CalendarIcon boxSize={6} />}
             />
             <Box>
