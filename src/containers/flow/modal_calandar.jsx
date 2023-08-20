@@ -25,26 +25,11 @@ import Calendar from "react-calendar";
 import "react-calendar/dist/Calendar.css";
 
 // utils
-import { getToday } from "@/utils/time";
+import { getToday, timeFormat } from "@/utils/time";
 import { copyToClipboard } from "@/utils/copyboard";
 
 // service
 import flowService from "@/service/flow";
-
-function timeFormat(time) {
-  let hour = Math.floor(time / 60);
-  let minute = Math.floor(time % 60);
-
-  if (hour < 10) {
-    hour = "0" + hour;
-  }
-
-  if (minute < 10) {
-    minute = "0" + minute;
-  }
-
-  return `${hour}:${minute}`;
-}
 
 export default function ({ isOpen, onClose }) {
   const [date, setDate] = useState(getToday());

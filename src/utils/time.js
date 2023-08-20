@@ -46,3 +46,18 @@ export const useCurrentMinute = () => {
 
   return time;
 };
+
+export const timeFormat = (time) => {
+  let hour = Math.floor(time / 60);
+  let minute = Math.floor(time % 60);
+
+  if (hour < 10) {
+    hour = "0" + hour;
+  }
+
+  if (minute < 10) {
+    minute = "0" + minute;
+  }
+
+  return `${hour}:${minute}`;
+};

@@ -1,3 +1,4 @@
+import React from "react";
 import { Field, Form, Formik } from "formik";
 
 import {
@@ -20,7 +21,7 @@ import {
 } from "@chakra-ui/react";
 
 import { DeleteIcon } from "@chakra-ui/icons";
-import React from "react";
+import { timeFormat } from "@/utils/time";
 
 export interface FormValue {
   content: string;
@@ -47,7 +48,10 @@ export default function ({ isOpen, handleClose, handleSave, selected }) {
         {(props) => (
           <Form>
             <ModalContent>
-              <ModalHeader>Edit</ModalHeader>
+              <ModalHeader>
+                Edit{" "}
+                {`${timeFormat(selected.start)}-${timeFormat(selected.end)}`}
+              </ModalHeader>
               <ModalBody>
                 <Field name="content">
                   {({ field, form }) => (
