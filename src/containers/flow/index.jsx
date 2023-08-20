@@ -225,13 +225,13 @@ function App() {
     <ChakraProvider>
       {action === relax && (
         <>
-          <div class="meteor-2"></div>
-          <div class="meteor-1"></div>
-          <div class="meteor-3"></div>
-          <div class="meteor-4"></div>
-          <div class="meteor-5"></div>
-          <div class="meteor-6"></div>
-          <div class="meteor-9"></div>
+          <div className="meteor-2"></div>
+          <div className="meteor-1"></div>
+          <div className="meteor-3"></div>
+          <div className="meteor-4"></div>
+          <div className="meteor-5"></div>
+          <div className="meteor-6"></div>
+          <div className="meteor-9"></div>
         </>
       )}
 
