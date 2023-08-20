@@ -63,7 +63,7 @@ const reducer = (state, action) => {
 
       return {
         ...state,
-        time: isWork ? state.workTime : state.relaxTime,
+        time: nextAction === work ? state.workTime : state.relaxTime,
         isIntervalRunning: nextAction === relax,
         action: nextAction,
         newRecord: { start: 0, end: 0 },
@@ -95,13 +95,18 @@ const reducer = (state, action) => {
         selected: { start: 0, end: 0 },
       };
 
-    case "SET_COUNTDOWN_TIME":
-      const time = action.payload.second;
+    case "SET_COUNTDOWN_TIME": {
+      const time =
+        action.payload.action === state.action
+          ? action.payload.second
+          : state.time;
+
       return {
         ...state,
         time,
-        [`${action.payload.action}Time`]: time,
+        [`${action.payload.action}Time`]: action.payload.second,
       };
+    }
 
     case "HANDLE_SAVE_RECORD": {
       const newRecordList = state.recordList.map((el) => {

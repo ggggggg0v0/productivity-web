@@ -47,7 +47,7 @@ export default function Setting(props) {
                     handleSetTime(work, el * 60);
                   }}
                   style={{ margin: "10px" }}
-                  disabled={isIntervalRunning}
+                  isDisabled={isIntervalRunning}
                 >
                   {el}m
                 </Button>
@@ -63,7 +63,7 @@ export default function Setting(props) {
                     handleSetTime(relax, el * 60);
                   }}
                   style={{ margin: "10px" }}
-                  disabled={isIntervalRunning}
+                  isDisabled={isIntervalRunning}
                 >
                   {el}m
                 </Button>
