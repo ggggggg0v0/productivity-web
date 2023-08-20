@@ -35,7 +35,7 @@ import { useAudio } from "@/utils/audio";
 
 // styles
 import "./moon.scss";
-import "./meteor.scss";
+// import "./meteor.scss";
 
 const reducer = (state, action) => {
   let newTask = [...state.record];
