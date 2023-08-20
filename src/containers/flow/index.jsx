@@ -51,22 +51,24 @@ const reducer = (state, action) => {
 
       const isWork = state.action === work;
       const nextAction = isWork ? relax : work;
+      const newRecord = {
+        ...state.newRecord,
+        end: getCurrentMinute(),
+      };
 
       if (isWork) {
-        newRecordList.push({
-          ...state.newRecord,
-          end: getCurrentMinute(),
-        });
+        newRecordList.push(newRecord);
         isWork && flowService.setRecordList(newRecordList);
       }
 
       return {
         ...state,
-        time: nextAction === work ? state.workTime : state.relaxTime,
+        time: isWork ? state.workTime : state.relaxTime,
         isIntervalRunning: nextAction === relax,
         action: nextAction,
         newRecord: { start: 0, end: 0 },
         recordList: isWork ? newRecordList : state.recordList,
+        selected: isWork ? newRecord : state.selected, // 工作時間切換休息時間在 modal 顯示都靠這裡了
       };
     }
 
@@ -90,7 +92,7 @@ const reducer = (state, action) => {
     case "CLEAR_SELECT_CONTENT":
       return {
         ...state,
-        selected: { recordIndex: "", record: "" },
+        selected: { start: 0, end: 0 },
       };
 
     case "SET_COUNTDOWN_TIME":
@@ -176,8 +178,9 @@ function App() {
       notify("Time's up!");
       audioElement.play();
       stopCountdown();
+      action === work && modalClosure.onOpen();
     }
-  }, [isIntervalRunning, time, audioElement]);
+  }, [isIntervalRunning, time, audioElement, action]);
 
   const handleSetTime = (type, second) => {
     switch (type) {

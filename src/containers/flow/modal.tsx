@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Field, Form, Formik } from "formik";
 
 import {
@@ -22,12 +22,22 @@ import {
 
 import { DeleteIcon } from "@chakra-ui/icons";
 import { timeFormat } from "@/utils/time";
+import { useEffect } from "react";
 
 export interface FormValue {
   content: string;
 }
 
 export default function ({ isOpen, handleClose, handleSave, selected }) {
+  const [inputValue, setInputValue] = useState("");
+  useEffect(() => {
+    setInputValue(selected.content || "");
+  }, [selected]);
+
+  const handleInputChange = (event) => {
+    setInputValue(event.target.value);
+  };
+
   function handleSubmit(formValue: FormValue, actions) {
     handleSave(formValue);
     actions.setSubmitting(false);
@@ -57,7 +67,12 @@ export default function ({ isOpen, handleClose, handleSave, selected }) {
                   {({ field, form }) => (
                     <FormControl>
                       <FormLabel>Content</FormLabel>
-                      <Textarea {...field} placeholder="Please enter content" />
+                      <Textarea
+                        {...field}
+                        placeholder="Please enter content"
+                        value={inputValue}
+                        onChange={handleInputChange}
+                      />
                     </FormControl>
                   )}
                 </Field>
