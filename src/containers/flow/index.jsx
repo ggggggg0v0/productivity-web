@@ -114,6 +114,15 @@ const reducer = (state, action) => {
         record: newTask,
       };
 
+    case "SKIP_RELAX":
+      console.log("ssss");
+      return {
+        ...state,
+        action: work,
+        time: state.workTime,
+        isIntervalRunning: false,
+      };
+
     default:
       return state;
   }
@@ -211,6 +220,10 @@ function App() {
     modalClosure.onClose();
   };
 
+  const handleSkipRelax = () => {
+    dispatch({ type: "SKIP_RELAX" });
+  };
+
   return (
     <ChakraProvider>
       {action === relax && (
@@ -255,6 +268,16 @@ function App() {
             </Box>
           </Flex>
           <Flex alignItems="center" flexDirection="column">
+            <Text
+              onClick={handleSkipRelax}
+              style={{
+                color: "white",
+                visibility: action === relax ? "visible" : "hidden",
+                cursor: "pointer",
+              }}
+            >
+              跳過休息
+            </Text>
             <Text fontWeight="bold" fontSize="7xl" color="white">
               {`${
                 Math.floor(time / 60) < 10
