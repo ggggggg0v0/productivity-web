@@ -13,16 +13,17 @@ import "./timebox.scss"; // 可能需要自行設置 CSS 樣式
 import { useMemo } from "react";
 
 function checkHasActive(currentMinute, data) {
-  let activeIndex = 1;
+  let activeRecord;
   let hasActive = false;
-  data.forEach(({ start, end }, i) => {
+  data.forEach((record, i) => {
+    const { start, end } = record;
     if (currentMinute >= start && currentMinute <= end) {
-      activeIndex = i;
+      activeRecord = record;
       hasActive = true;
     }
   });
 
-  return [hasActive, activeIndex];
+  return [hasActive, activeRecord];
 }
 
 function C({ recordList, handleClickBox, newRecord, action }) {
@@ -71,7 +72,7 @@ function C({ recordList, handleClickBox, newRecord, action }) {
       for (let row = 0; row < numRows; row++) {
         const currentMinute = row + column * 60 + 1;
 
-        let [hasActive, activeIndex] = checkHasActive(
+        let [hasActive, activeRecord] = checkHasActive(
           currentMinute,
           recordList
         );
@@ -86,7 +87,7 @@ function C({ recordList, handleClickBox, newRecord, action }) {
           <div
             onClick={() => {
               if (hasActive) {
-                handleClickBox({ activeIndex: activeIndex });
+                handleClickBox(activeRecord);
               }
             }}
             key={`row_${currentMinute}`}

@@ -51,7 +51,7 @@ export default function ({ isOpen, onClose }) {
   const [isCalendarOpen, setIsCalendarOpen] = useState(false);
   const calendarRef = useRef(null);
   const toast = useToast();
-  const todayRecord = flowService.getRecord(date);
+  const todayRecord = flowService.getRecordList(date);
 
   const handleOutsideClick = (event) => {
     if (calendarRef.current && !calendarRef.current.contains(event.target)) {

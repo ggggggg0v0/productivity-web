@@ -20,10 +20,15 @@ import {
 } from "@chakra-ui/react";
 
 import { DeleteIcon } from "@chakra-ui/icons";
+import React from "react";
+
+export interface FormValue {
+  content: string;
+}
 
 export default function ({ isOpen, handleClose, handleSave, selected }) {
-  function handleSubmit(values, actions) {
-    handleSave(values);
+  function handleSubmit(formValue: FormValue, actions) {
+    handleSave(formValue);
     actions.setSubmitting(false);
   }
 
@@ -36,7 +41,7 @@ export default function ({ isOpen, handleClose, handleSave, selected }) {
     >
       <ModalOverlay />
       <Formik
-        initialValues={{ content: selected?.record?.content }}
+        initialValues={{ content: selected?.content }}
         onSubmit={handleSubmit}
       >
         {(props) => (
@@ -55,7 +60,10 @@ export default function ({ isOpen, handleClose, handleSave, selected }) {
               </ModalBody>
 
               <ModalFooter justifyContent="space-between">
-                <IconButton icon={<DeleteIcon color="red.500" />} />
+                <IconButton
+                  icon={<DeleteIcon color="red.500" />}
+                  aria-label={""}
+                />
                 <Flex>
                   <Button mr={3} onClick={handleClose} variant="ghost">
                     Close

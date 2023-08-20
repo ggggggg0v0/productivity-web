@@ -38,8 +38,6 @@ import "./moon.scss";
 // import "./meteor.scss";
 
 const reducer = (state, action) => {
-  let newRecordList = [...state.recordList];
-
   switch (action.type) {
     case "START_COUNTDOWN":
       return {
@@ -48,7 +46,9 @@ const reducer = (state, action) => {
         newRecord: { ...state.newRecord, start: getCurrentMinute() },
       };
 
-    case "STOP_COUNTDOWN":
+    case "STOP_COUNTDOWN": {
+      let newRecordList = [...state.recordList];
+
       const isWork = state.action === work;
       const nextAction = isWork ? relax : work;
 
@@ -68,6 +68,8 @@ const reducer = (state, action) => {
         newRecord: { start: 0, end: 0 },
         recordList: isWork ? newRecordList : state.recordList,
       };
+    }
+
     case "COUNTDOWN":
       return { ...state, time: state.time - 1 };
 
@@ -82,10 +84,7 @@ const reducer = (state, action) => {
     case "SELECT_CONTENT":
       return {
         ...state,
-        selected: {
-          ...state.selected,
-          ...action.payload,
-        },
+        selected: action.payload,
       };
 
     case "CLEAR_SELECT_CONTENT":
@@ -102,18 +101,20 @@ const reducer = (state, action) => {
         [`${action.payload.action}Time`]: time,
       };
 
-    case "HANDLE_SAVE_RECORD":
-      newRecordList[action.payload.recordIndex] = {
-        ...action.payload.record,
-        content: action.payload.content,
-      };
+    case "HANDLE_SAVE_RECORD": {
+      const newRecordList = state.recordList.map((el) => {
+        if (el.start === action.payload.start) {
+          return action.payload;
+        }
+        return el;
+      });
       flowService.setRecordList(newRecordList);
 
       return {
         ...state,
         recordList: newRecordList,
       };
-
+    }
     case "SKIP_RELAX":
       return {
         ...state,
@@ -197,10 +198,7 @@ function App() {
   const handleClickBox = (values) => {
     dispatch({
       type: "SELECT_CONTENT",
-      payload: {
-        recordIndex: values.activeIndex,
-        record: recordList[values.activeIndex],
-      },
+      payload: values,
     });
 
     modalClosure.onOpen();
@@ -209,7 +207,7 @@ function App() {
   const handleSave = (values) => {
     dispatch({
       type: "HANDLE_SAVE_RECORD",
-      payload: { ...values, ...selected },
+      payload: { ...selected, ...values },
     });
     modalClosure.onClose();
   };
