@@ -38,14 +38,14 @@ import "./moon.scss";
 // import "./meteor.scss";
 
 const reducer = (state, action) => {
-  let newTask = [...state.record];
+  let newRecordList = [...state.recordList];
 
   switch (action.type) {
     case "START_COUNTDOWN":
       return {
         ...state,
         isIntervalRunning: true,
-        newTaskTime: { ...state.newTaskTime, start: getCurrentMinute() },
+        newRecord: { ...state.newRecord, start: getCurrentMinute() },
       };
 
     case "STOP_COUNTDOWN":
@@ -53,11 +53,11 @@ const reducer = (state, action) => {
       const nextAction = isWork ? relax : work;
 
       if (isWork) {
-        newTask.push({
-          ...state.newTaskTime,
+        newRecordList.push({
+          ...state.newRecord,
           end: getCurrentMinute(),
         });
-        isWork && flowService.setRecordList(newTask);
+        isWork && flowService.setRecordList(newRecordList);
       }
 
       return {
@@ -65,8 +65,8 @@ const reducer = (state, action) => {
         time: nextAction === work ? state.workTime : state.relaxTime,
         isIntervalRunning: nextAction === relax,
         action: nextAction,
-        newTaskTime: { start: 0, end: 0 },
-        record: isWork ? newTask : state.record,
+        newRecord: { start: 0, end: 0 },
+        recordList: isWork ? newRecordList : state.recordList,
       };
     case "COUNTDOWN":
       return { ...state, time: state.time - 1 };
@@ -76,7 +76,7 @@ const reducer = (state, action) => {
         ...state,
         time: state.action === work ? state.workTime : state.relaxTime,
         isIntervalRunning: false,
-        newTaskTime: { start: 0, end: 0 },
+        newRecord: { start: 0, end: 0 },
       };
 
     case "SELECT_CONTENT":
@@ -103,19 +103,18 @@ const reducer = (state, action) => {
       };
 
     case "HANDLE_SAVE_RECORD":
-      newTask[action.payload.recordIndex] = {
+      newRecordList[action.payload.recordIndex] = {
         ...action.payload.record,
         content: action.payload.content,
       };
-      flowService.setRecordList(newTask);
+      flowService.setRecordList(newRecordList);
 
       return {
         ...state,
-        record: newTask,
+        recordList: newRecordList,
       };
 
     case "SKIP_RELAX":
-      console.log("ssss");
       return {
         ...state,
         action: work,
@@ -135,8 +134,8 @@ const initState = {
   isIntervalRunning: false,
   selected: {},
   time: initWorkTime,
-  record: flowService.getRecordList(),
-  newTaskTime: { start: 0, end: 0 },
+  recordList: flowService.getRecordList(),
+  newRecord: { start: 0, end: 0 },
 };
 
 function App() {
@@ -146,7 +145,7 @@ function App() {
 
   // Current State
   const [
-    { action, isIntervalRunning, selected, time, record, newTaskTime },
+    { action, isIntervalRunning, selected, time, recordList, newRecord },
     dispatch,
   ] = useReducer(reducer, initState);
 
@@ -200,7 +199,7 @@ function App() {
       type: "SELECT_CONTENT",
       payload: {
         recordIndex: values.activeIndex,
-        record: record[values.activeIndex],
+        record: recordList[values.activeIndex],
       },
     });
 
@@ -309,9 +308,9 @@ function App() {
           <Flex alignItems="center" flexDirection="column">
             <Box mt="60px">
               <TimeBox2
-                record={record}
+                recordList={recordList}
+                newRecord={newRecord}
                 handleClickBox={handleClickBox}
-                currentTime={newTaskTime}
                 action={action}
               />
             </Box>

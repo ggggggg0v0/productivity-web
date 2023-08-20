@@ -25,7 +25,7 @@ function checkHasActive(currentMinute, data) {
   return [hasActive, activeIndex];
 }
 
-function C({ record, handleClickBox, currentTime, action }) {
+function C({ recordList, handleClickBox, newRecord, action }) {
   const currentTimeMinute = useCurrentMinute();
 
   const generateTable = () => {
@@ -71,12 +71,15 @@ function C({ record, handleClickBox, currentTime, action }) {
       for (let row = 0; row < numRows; row++) {
         const currentMinute = row + column * 60 + 1;
 
-        let [hasActive, activeIndex] = checkHasActive(currentMinute, record);
+        let [hasActive, activeIndex] = checkHasActive(
+          currentMinute,
+          recordList
+        );
 
         const isProcessing =
           action === work &&
-          currentTime.start > 0 &&
-          currentTime.start < currentMinute &&
+          newRecord.start > 0 &&
+          newRecord.start < currentMinute &&
           currentTimeMinute > currentMinute;
 
         columns.push(
@@ -114,8 +117,8 @@ function C({ record, handleClickBox, currentTime, action }) {
 
   const grid = useMemo(generateTable, [
     action,
-    currentTime,
-    record,
+    newRecord,
+    recordList,
     currentTimeMinute,
   ]);
 
