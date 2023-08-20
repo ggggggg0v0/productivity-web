@@ -5,7 +5,6 @@ import {
   // Layout
   Flex,
   // Form
-  IconButton,
   Button,
   // Modal
   Modal,
@@ -20,7 +19,6 @@ import {
   FormLabel,
 } from "@chakra-ui/react";
 
-import { DeleteIcon } from "@chakra-ui/icons";
 import { timeFormat } from "@/utils/time";
 import { useEffect } from "react";
 
@@ -78,24 +76,18 @@ export default function ({ isOpen, handleClose, handleSave, selected }) {
                 </Field>
               </ModalBody>
 
-              <ModalFooter justifyContent="space-between">
-                <IconButton
-                  icon={<DeleteIcon color="red.500" />}
-                  aria-label={""}
-                />
-                <Flex>
-                  <Button mr={3} onClick={handleClose} variant="ghost">
-                    Close
-                  </Button>
-                  <Button
-                    mr={3}
-                    type="submit"
-                    isLoading={props.isSubmitting}
-                    colorScheme="blue"
-                  >
-                    Save
-                  </Button>
-                </Flex>
+              <ModalFooter>
+                <Button mr={3} onClick={handleClose} variant="ghost">
+                  Close
+                </Button>
+                <Button
+                  mr={3}
+                  type="submit"
+                  isLoading={props.isSubmitting}
+                  colorScheme="blue"
+                >
+                  Save
+                </Button>
               </ModalFooter>
             </ModalContent>
           </Form>
