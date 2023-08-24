@@ -217,6 +217,7 @@ function App() {
       type: "HANDLE_SAVE_RECORD",
       payload: { ...selected, ...values },
     });
+    console.log(selected, values);
     modalClosure.onClose();
   };
 

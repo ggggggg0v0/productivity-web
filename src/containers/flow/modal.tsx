@@ -37,7 +37,7 @@ export default function ({ isOpen, handleClose, handleSave, selected }) {
   };
 
   function handleSubmit(formValue: FormValue, actions) {
-    handleSave(formValue);
+    handleSave({ content: inputValue });
     actions.setSubmitting(false);
   }
 
