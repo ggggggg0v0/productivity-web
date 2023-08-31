@@ -15,8 +15,8 @@ class local {
     localStorage.setItem(recordKey, JSON.stringify(record));
   }
 
-  getRecordList(): RecordList {
-    const today = getToday();
+  getRecordList(date): RecordList {
+    const today = date || getToday();
     const recordKey = `${today}_record`;
 
     const storedValue = localStorage.getItem(recordKey);
