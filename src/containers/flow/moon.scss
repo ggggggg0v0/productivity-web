@@ -1,0 +1,21 @@
+.moon {
+  position: absolute;
+  right: 22%;
+  background-color: transparent;
+  height: 100px;
+  width: 100px;
+  border-radius: 50%;
+  box-shadow: 45px 22px 0 0 rgb(240, 240, 104);
+
+  transition: transform 0.3s ease-in-out;
+  opacity: 100; /* 初始时透明 */
+  transform: translateY(-200%);
+}
+
+.moon.slide-out {
+  transform: translateY(-200%);
+}
+
+.moon.slide-in {
+  transform: translateY(0);
+}
