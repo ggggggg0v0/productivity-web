@@ -11,7 +11,6 @@ import {
 import { CalendarIcon } from "@chakra-ui/icons";
 import { useEffect, useReducer, useState } from "react";
 import { notify } from "@/utils/notification";
-
 // import { appWindow } from "@tauri-apps/api/window";
 
 import { ChevronRightIcon, RepeatClockIcon } from "@chakra-ui/icons";
@@ -27,7 +26,7 @@ import TimeBox2 from "./timebox2";
 import Modal from "./modal";
 import CalandarModal from "./modal_calandar";
 
-import { work, relax, initWorkTime, initRelaxTime } from "./consts";
+import { work, relax } from "./consts";
 
 // utils
 import { getCurrentMinute } from "@/utils/time";
@@ -73,7 +72,7 @@ const reducer = (state, action) => {
     }
 
     case "COUNTDOWN":
-      return { ...state, time: state.time - 1 };
+      return { ...state, time: state.time - 1, waterTime: state.waterTime - 1 };
 
     case "RESET_COUNTDOWN":
       return {
@@ -98,13 +97,13 @@ const reducer = (state, action) => {
     case "SET_COUNTDOWN_TIME": {
       const time =
         action.payload.action === state.action
-          ? action.payload.second
+          ? action.payload.time
           : state.time;
 
       return {
         ...state,
         time,
-        [`${action.payload.action}Time`]: action.payload.second,
+        [`${action.payload.action}Time`]: action.payload.time,
       };
     }
 
@@ -135,13 +134,14 @@ const reducer = (state, action) => {
   }
 };
 
+const defaultSetting = flowService.getSetting();
 const initState = {
-  workTime: initWorkTime,
-  relaxTime: initRelaxTime,
+  workTime: defaultSetting.workTime[0],
+  relaxTime: defaultSetting.relaxTime[0],
   action: work,
   isIntervalRunning: false,
   selected: {},
-  time: initWorkTime,
+  time: defaultSetting.workTime[0],
   recordList: flowService.getRecordList(),
   newRecord: { start: 0, end: 0 },
 };
@@ -153,7 +153,16 @@ function App() {
 
   // Current State
   const [
-    { action, isIntervalRunning, selected, time, recordList, newRecord },
+    {
+      action,
+      isIntervalRunning,
+      selected,
+      time,
+      recordList,
+      newRecord,
+      workTime,
+      relaxTime,
+    },
     dispatch,
   ] = useReducer(reducer, initState);
 
@@ -187,18 +196,18 @@ function App() {
     }
   }, [isIntervalRunning, time, audioElement, action]);
 
-  const handleSetTime = (type, second) => {
+  const handleSetTime = (type, time) => {
     switch (type) {
       case work:
         dispatch({
           type: "SET_COUNTDOWN_TIME",
-          payload: { action: work, second },
+          payload: { action: work, time },
         });
         break;
       case relax:
         dispatch({
           type: "SET_COUNTDOWN_TIME",
-          payload: { action: relax, second },
+          payload: { action: relax, time },
         });
     }
   };
@@ -265,11 +274,17 @@ function App() {
               boxShadow="none"
               onClick={modalCalandarClosure.onOpen}
               icon={<CalendarIcon boxSize={6} />}
+              style={{
+                outline: "none",
+                backgroundColor: "transparent",
+              }}
             />
             <Box>
               <Setting
                 handleSetTime={handleSetTime}
                 isIntervalRunning={isIntervalRunning}
+                workTime={workTime}
+                relaxTime={relaxTime}
               />
             </Box>
           </Flex>
@@ -286,10 +301,14 @@ function App() {
             </Text>
             <Text fontWeight="bold" fontSize="7xl" color="white">
               {`${
-                Math.floor(time / 60) < 10
-                  ? `0${Math.floor(time / 60)}`
-                  : `${Math.floor(time / 60)}`
-              }:${time % 60 < 10 ? `0${time % 60}` : time % 60}`}
+                Math.floor(time) < 10
+                  ? `0${Math.floor(time)}`
+                  : `${Math.floor(time)}`
+              }:${
+                (time * 60) % 60 < 10
+                  ? `0${(time * 60) % 60}`
+                  : (time * 60) % 60
+              }`}
             </Text>
             <Flex>
               <IconButton
@@ -308,6 +327,10 @@ function App() {
                 colorScheme="none"
                 border="none"
                 boxShadow="none"
+                style={{
+                  outline: "none",
+                  backgroundColor: "transparent",
+                }}
               />
             </Flex>
           </Flex>
@@ -328,4 +351,6 @@ function App() {
   );
 }
 
-export default App;
+export default () => {
+  return <App />;
+};
