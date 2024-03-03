@@ -175,11 +175,25 @@ export default function ({ isOpen, onClose }) {
                 {todayRecord.map((el) => {
                   const start = timeFormat(el.start);
                   const end = timeFormat(el.end);
-                  const timeRange = `${start}-${end}(${el.start - el.end})`;
+                  const timeRange = `${start}-${end}`;
                   return (
                     <Box key={timeRange}>
-                      <Heading size="lg" color="#242424">
+                      <Heading
+                        size="lg"
+                        color="#242424"
+                        style={{ display: "flex", alignItems: "center" }}
+                      >
                         {timeRange}
+                        <span
+                          style={{
+                            color: "gray",
+                            fontWeight: "300",
+                            fontSize: "25px",
+                            marginLeft: "10px",
+                          }}
+                        >
+                          ({el.end - el.start}m)
+                        </span>
                       </Heading>
                       <Box padding="6">
                         {/* <Textarea
