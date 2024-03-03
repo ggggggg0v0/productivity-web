@@ -72,7 +72,7 @@ const reducer = (state, action) => {
     }
 
     case "COUNTDOWN":
-      return { ...state, time: state.time - 1, waterTime: state.waterTime - 1 };
+      return { ...state, time: state.time - 1 };
 
     case "RESET_COUNTDOWN":
       return {
@@ -226,7 +226,6 @@ function App() {
       type: "HANDLE_SAVE_RECORD",
       payload: { ...selected, ...values },
     });
-    console.log(selected, values);
     modalClosure.onClose();
   };
 
@@ -301,14 +300,10 @@ function App() {
             </Text>
             <Text fontWeight="bold" fontSize="7xl" color="white">
               {`${
-                Math.floor(time) < 10
-                  ? `0${Math.floor(time)}`
-                  : `${Math.floor(time)}`
-              }:${
-                (time * 60) % 60 < 10
-                  ? `0${(time * 60) % 60}`
-                  : (time * 60) % 60
-              }`}
+                Math.floor(time / 60) < 10
+                  ? `0${Math.floor(time / 60)}`
+                  : `${Math.floor(time / 60)}`
+              }:${time % 60 < 10 ? `0${time % 60}` : time % 60}`}
             </Text>
             <Flex>
               <IconButton

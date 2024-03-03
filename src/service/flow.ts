@@ -8,8 +8,8 @@ interface Record {
 
 interface RecordList extends Array<Record> {}
 
-const defaultWorkTime = [5, 10, 15];
-const defaultRelaxTime = [5, 10, 15];
+const defaultWorkTime = [300, 600, 900];
+const defaultRelaxTime = [300, 600, 900];
 
 const defaultSetting = {
   workTime: defaultWorkTime,

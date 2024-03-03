@@ -29,7 +29,6 @@ const SettingField = ({
   action,
   field = "",
   handleSetTime,
-  onToggle,
   handleChange,
   time,
 }) => {
@@ -38,6 +37,7 @@ const SettingField = ({
       style={{
         display: "flex",
         justifyContent: "space-between",
+        width: "100%",
       }}
     >
       {setting.map((el, index) => {
@@ -45,16 +45,24 @@ const SettingField = ({
           return (
             <Input
               size="sm"
-              value={el}
+              value={el / 60}
               style={{
-                width: "58px",
+                textAlign: "center",
+                width: "100%",
                 margin: "10px",
-                height: "38px",
+                height: "40px",
                 borderRadius: "6px",
-                alignItems: "center",
+                backgroundColor: "rgb(237, 242, 247)",
+                fontWeight: "600",
               }}
-              onChange={(el) => {
-                handleChange(field, el.target.value, index);
+              onChange={(e) => {
+                let nextValue = e.target.value.replace(/\D/g, "");
+                if (!isNaN(nextValue) && nextValue <= 120) {
+                  if (nextValue === "" || nextValue === "0") {
+                    nextValue = 1;
+                  }
+                  handleChange(field, nextValue * 60, index);
+                }
               }}
             />
           );
@@ -62,17 +70,17 @@ const SettingField = ({
         return (
           <Button
             onClick={() => {
-              onToggle();
               handleSetTime(action, el);
             }}
             style={{
+              width: "100%",
               margin: "10px",
               backgroundColor: time === el ? "#2a7864" : "",
               color: time === el ? "white" : "",
             }}
             isDisabled={isDisabled}
           >
-            {el}m
+            {el / 60}m
           </Button>
         );
       })}
@@ -90,7 +98,6 @@ export default function Setting(props) {
   const switchEdit = () => {
     setIsEdit(!isEdit);
   };
-  console.log("workTime, relaxTime ", workTime, relaxTime);
   const onSave = () => {
     flowService.setSetting(formSetting);
     setSetting(formSetting);
@@ -98,7 +105,6 @@ export default function Setting(props) {
   };
   const onReset = () => {
     const defaultSetting = flowService.resetSetting();
-    console.log("defaultSetting", defaultSetting);
     setSetting(defaultSetting);
     setFormSetting(defaultSetting);
   };
@@ -143,62 +149,33 @@ export default function Setting(props) {
                 alignItems: "center",
               }}
             >
-              <p>Work</p>
+              <p>Work {isEdit ? "(0 to 120)" : ""}</p>
               {isEdit ? (
-                <div>
-                  <IconButton
-                    aria-label="cancel"
-                    backgroundColor="white"
-                    border="none"
-                    boxShadow="none"
+                <div style={{ alignItems: "center" }}>
+                  <CloseIcon
+                    style={{
+                      cursor: "pointer",
+                      marginRight: "10px",
+                      fontSize: "11px",
+                    }}
                     onClick={switchEdit}
-                    fontSize="10px"
-                    icon={<CloseIcon color="gray.400" />}
-                    style={{
-                      marginRight: "5px",
-                      outline: "none",
-                      backgroundColor: "transparent",
-                    }}
+                    color="black.100"
                   />
-                  <IconButton
-                    aria-label="save"
-                    backgroundColor="white"
-                    border="none"
-                    boxShadow="none"
+                  <CheckIcon
+                    style={{ cursor: "pointer" }}
                     onClick={onSave}
-                    fontSize="12px"
-                    icon={<CheckIcon color="green.400" />}
-                    style={{
-                      outline: "none",
-                      backgroundColor: "transparent",
-                    }}
+                    color="green.400"
                   />
                 </div>
               ) : (
                 <div>
-                  <IconButton
-                    aria-label="reset"
-                    backgroundColor="white"
-                    border="none"
-                    boxShadow="none"
+                  <RepeatClockIcon
+                    style={{ cursor: "pointer", marginRight: "10px" }}
                     onClick={onReset}
-                    icon={<RepeatClockIcon />}
-                    style={{
-                      outline: "none",
-                      backgroundColor: "transparent",
-                    }}
                   />
-                  <IconButton
-                    aria-label="edit"
-                    backgroundColor="white"
-                    border="none"
-                    boxShadow="none"
+                  <SettingsIcon
+                    style={{ cursor: "pointer" }}
                     onClick={switchEdit}
-                    icon={<SettingsIcon />}
-                    style={{
-                      outline: "none",
-                      backgroundColor: "transparent",
-                    }}
                   />
                 </div>
               )}
