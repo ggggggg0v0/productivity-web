@@ -8,7 +8,7 @@
     "build": "vite build",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
-    "gh-page": "git branch -D gh-page; git co -b gh-page;git merge --no-ff feat/timer; pnpm build; git add .; git commit -m 'update page'; git push origin gh-page -f"
+    "gh-page": "git branch -D gh-page; git checkout -b gh-page; pnpm build; git add .; git commit -m 'update page'; git push origin gh-page -f"
   },
   "dependencies": {
     "@chakra-ui/icons": "^2.1.0",
