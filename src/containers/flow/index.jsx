@@ -134,14 +134,15 @@ const reducer = (state, action) => {
   }
 };
 
-const defaultSetting = flowService.getSetting();
+const defaultSelectedSetting = flowService.getSelectedSetting();
+
 const initState = {
-  workTime: defaultSetting.workTime[0],
-  relaxTime: defaultSetting.relaxTime[0],
+  workTime: defaultSelectedSetting.work,
+  relaxTime: defaultSelectedSetting.relax,
   action: work,
   isIntervalRunning: false,
   selected: {},
-  time: defaultSetting.workTime[0],
+  time: defaultSelectedSetting.work,
   recordList: flowService.getRecordList(),
   newRecord: { start: 0, end: 0 },
 };

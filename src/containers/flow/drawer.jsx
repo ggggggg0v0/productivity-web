@@ -70,6 +70,7 @@ const SettingField = ({
         return (
           <Button
             onClick={() => {
+              flowService.setSelectedTime(action, el);
               handleSetTime(action, el);
             }}
             style={{
