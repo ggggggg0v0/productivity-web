@@ -2,7 +2,6 @@ import { useState, useEffect, useRef } from "react";
 import {
   // Layout
   Flex,
-
   // Component
   IconButton,
   Heading,
@@ -14,6 +13,8 @@ import {
   StackDivider,
   CloseButton,
   useToast,
+  Tag,
+  TagLabel,
   // Modal
   Modal,
   ModalBody,
@@ -63,9 +64,10 @@ export default function ({ isOpen, onClose }) {
 
   const handleCopy = () => {
     let str = "";
-    todayRecord.forEach(({ start, end, content }) => {
+    todayRecord.forEach(({ start, end, content, tags }) => {
       const timeRange = `${timeFormat(start)}-${timeFormat(end)}`;
-      str += `${timeRange} ${content || ""}\n`;
+      const tagsStr = tags && tags.length > 0 ? ` [${tags.join(", ")}]` : "";
+      str += `${timeRange} ${content || ""}${tagsStr}\n`;
     });
 
     copyToClipboard(str)
@@ -196,14 +198,37 @@ export default function ({ isOpen, onClose }) {
                         </span>
                       </Heading>
                       <Box padding="6">
-                        {/* <Textarea
-                          isDisabled
-                          value={el.content}
-                          placeholder="Click and edit content"
-                        /> */}
-                        <Text placeholder="Click and edit content" />
-                        {el.content}
-                        <Text />
+                        <Text mb={el.content ? 2 : 0}>
+                          {el.content || (
+                            <Text as="span" color="gray.400">
+                              無內容
+                            </Text>
+                          )}
+                        </Text>
+                        {el.tags && el.tags.length > 0 && (
+                          <Box mt={3}>
+                            <Text
+                              fontSize="sm"
+                              color="gray.600"
+                              mb={2}
+                              fontWeight="medium"
+                            >
+                              標籤：
+                            </Text>
+                            <Flex wrap="wrap" gap={2}>
+                              {el.tags.map((tag) => (
+                                <Tag
+                                  key={tag}
+                                  size="md"
+                                  colorScheme="blue"
+                                  variant="solid"
+                                >
+                                  <TagLabel>{tag}</TagLabel>
+                                </Tag>
+                              ))}
+                            </Flex>
+                          </Box>
+                        )}
                       </Box>
                     </Box>
                   );

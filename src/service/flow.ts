@@ -5,6 +5,7 @@ interface Record {
   start: number;
   end: number;
   content: string;
+  tags?: string[];
 }
 
 interface RecordList extends Array<Record> {}
@@ -65,6 +66,29 @@ class local {
     let selectedSetting = this.getSelectedSetting();
     selectedSetting[action] = data;
     localStorage.setItem("selectedSetting", JSON.stringify(selectedSetting));
+  }
+
+  getTags(): string[] {
+    const storedValue = localStorage.getItem("tags");
+    return storedValue ? JSON.parse(storedValue) : [];
+  }
+
+  setTags(tags: string[]) {
+    localStorage.setItem("tags", JSON.stringify(tags));
+  }
+
+  addTag(tag: string) {
+    const tags = this.getTags();
+    if (!tags.includes(tag) && tag.trim() !== "") {
+      tags.push(tag.trim());
+      this.setTags(tags);
+    }
+  }
+
+  removeTag(tag: string) {
+    const tags = this.getTags();
+    const filteredTags = tags.filter((t) => t !== tag);
+    this.setTags(filteredTags);
   }
 }
 

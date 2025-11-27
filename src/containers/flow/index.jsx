@@ -13,7 +13,7 @@ import { useEffect, useReducer, useState } from "react";
 import { notify } from "@/utils/notification";
 // import { appWindow } from "@tauri-apps/api/window";
 
-import { ChevronRightIcon, RepeatClockIcon } from "@chakra-ui/icons";
+import { ChevronRightIcon, RepeatClockIcon, CloseIcon } from "@chakra-ui/icons";
 import mp3url from "@/assets/mp3/success.mp3";
 
 // service
@@ -129,6 +129,32 @@ const reducer = (state, action) => {
         isIntervalRunning: false,
       };
 
+    case "FORCE_STOP_COUNTDOWN": {
+      let newRecordList = [...state.recordList];
+
+      const isWork = state.action === work;
+      const nextAction = isWork ? relax : work;
+      const newRecord = {
+        ...state.newRecord,
+        end: getCurrentMinute(),
+      };
+
+      if (isWork && state.newRecord.start > 0) {
+        newRecordList.push(newRecord);
+        flowService.setRecordList(newRecordList);
+      }
+
+      return {
+        ...state,
+        time: nextAction === work ? state.workTime : state.relaxTime,
+        isIntervalRunning: false,
+        action: nextAction,
+        newRecord: { start: 0, end: 0 },
+        recordList: isWork && state.newRecord.start > 0 ? newRecordList : state.recordList,
+        selected: isWork && state.newRecord.start > 0 ? newRecord : state.selected,
+      };
+    }
+
     default:
       return state;
   }
@@ -239,6 +265,18 @@ function App() {
     dispatch({ type: "SKIP_RELAX" });
   };
 
+  const handleForceStop = () => {
+    if (isIntervalRunning && action === work && newRecord.start > 0) {
+      dispatch({ type: "FORCE_STOP_COUNTDOWN" });
+      // 使用 setTimeout 确保状态更新后再打开 modal
+      setTimeout(() => {
+        modalClosure.onOpen();
+      }, 0);
+    } else if (isIntervalRunning) {
+      dispatch({ type: "FORCE_STOP_COUNTDOWN" });
+    }
+  };
+
   return (
     <ChakraProvider>
       {action === relax && (
@@ -306,7 +344,7 @@ function App() {
                   : `${Math.floor(time / 60)}`
               }:${time % 60 < 10 ? `0${time % 60}` : time % 60}`}
             </Text>
-            <Flex>
+            <Flex gap={4}>
               <IconButton
                 // width="7rem"
                 onClick={
@@ -328,6 +366,21 @@ function App() {
                   backgroundColor: "transparent",
                 }}
               />
+              {isIntervalRunning && (
+                <IconButton
+                  onClick={handleForceStop}
+                  icon={<CloseIcon boxSize="2em" />}
+                  color="red"
+                  colorScheme="none"
+                  border="none"
+                  boxShadow="none"
+                  style={{
+                    outline: "none",
+                    backgroundColor: "transparent",
+                  }}
+                  title="強制結束並記錄"
+                />
+              )}
             </Flex>
           </Flex>
 

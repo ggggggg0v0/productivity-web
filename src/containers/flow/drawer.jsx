@@ -9,6 +9,14 @@ import {
   useDisclosure,
   Button,
   Input,
+  HStack,
+  Tag,
+  TagLabel,
+  TagCloseButton,
+  Flex,
+  VStack,
+  Box,
+  Text,
 } from "@chakra-ui/react";
 
 import {
@@ -19,7 +27,7 @@ import {
   RepeatClockIcon,
 } from "@chakra-ui/icons";
 import { work, relax } from "./consts";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import flowService from "@/service/flow";
 
 const SettingField = ({
@@ -95,6 +103,25 @@ export default function Setting(props) {
   const [isEdit, setIsEdit] = useState(false);
   const [setting, setSetting] = useState(flowService.getSetting());
   const [formSetting, setFormSetting] = useState(flowService.getSetting());
+  const [tags, setTags] = useState([]);
+  const [newTagInput, setNewTagInput] = useState("");
+
+  useEffect(() => {
+    setTags(flowService.getTags());
+  }, [isOpen]);
+
+  const handleAddTag = () => {
+    if (newTagInput.trim() !== "") {
+      flowService.addTag(newTagInput.trim());
+      setTags(flowService.getTags());
+      setNewTagInput("");
+    }
+  };
+
+  const handleRemoveTag = (tag) => {
+    flowService.removeTag(tag);
+    setTags(flowService.getTags());
+  };
 
   const switchEdit = () => {
     setIsEdit(!isEdit);
@@ -218,6 +245,84 @@ export default function Setting(props) {
                 isEdit={isEdit}
                 time={relaxTime}
               />
+            </div>
+
+            <div
+              style={{
+                marginTop: "30px",
+                paddingTop: "20px",
+                borderTop: "1px solid #e2e8f0",
+              }}
+            >
+              <p style={{ marginBottom: "15px", fontWeight: "600" }}>
+                標籤管理
+              </p>
+              <VStack align="stretch" spacing={3}>
+                <HStack>
+                  <Input
+                    size="sm"
+                    placeholder="輸入新標籤名稱"
+                    value={newTagInput}
+                    onChange={(e) => setNewTagInput(e.target.value)}
+                    onKeyPress={(e) => {
+                      if (e.key === "Enter") {
+                        e.preventDefault();
+                        handleAddTag();
+                      }
+                    }}
+                  />
+                  <Button size="sm" onClick={handleAddTag} colorScheme="blue">
+                    新增
+                  </Button>
+                </HStack>
+                <Box
+                  border="1px solid"
+                  borderColor="gray.200"
+                  borderRadius="md"
+                  p={3}
+                  maxH="200px"
+                  overflowY="auto"
+                  bg="gray.50"
+                >
+                  {tags.length > 0 ? (
+                    <VStack align="stretch" spacing={2}>
+                      {tags.map((tag) => (
+                        <Flex
+                          key={tag}
+                          justify="space-between"
+                          align="center"
+                          p={2}
+                          bg="white"
+                          borderRadius="md"
+                          border="1px solid"
+                          borderColor="gray.200"
+                        >
+                          <Tag size="md" colorScheme="blue">
+                            <TagLabel>{tag}</TagLabel>
+                          </Tag>
+                          <Button
+                            size="xs"
+                            colorScheme="red"
+                            variant="ghost"
+                            onClick={() => handleRemoveTag(tag)}
+                          >
+                            刪除
+                          </Button>
+                        </Flex>
+                      ))}
+                    </VStack>
+                  ) : (
+                    <Text
+                      fontSize="sm"
+                      color="gray.500"
+                      textAlign="center"
+                      py={4}
+                    >
+                      尚無標籤
+                    </Text>
+                  )}
+                </Box>
+              </VStack>
             </div>
           </DrawerBody>
         </DrawerContent>
