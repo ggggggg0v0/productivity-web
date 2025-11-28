@@ -26,7 +26,7 @@ function checkHasActive(currentMinute, data) {
   return [hasActive, activeRecord];
 }
 
-function C({ recordList, handleClickBox, newRecord, action }) {
+function C({ recordList, handleClickBox, newRecord, action, isManualAddMode, manualSelection, onManualSelect }) {
   const currentTimeMinute = useCurrentMinute();
 
   const generateTable = () => {
@@ -83,20 +83,75 @@ function C({ recordList, handleClickBox, newRecord, action }) {
           newRecord.start < currentMinute &&
           currentTimeMinute > currentMinute;
 
+        // 检查是否在手动选择的范围内
+        const isManualSelected =
+          isManualAddMode &&
+          manualSelection.start > 0 &&
+          manualSelection.end > 0 &&
+          currentMinute >= manualSelection.start &&
+          currentMinute <= manualSelection.end;
+        
+        // 检查是否是手动选择的开始点（即使 end 为 0）
+        const isManualStartPoint =
+          isManualAddMode &&
+          manualSelection.start > 0 &&
+          manualSelection.end === 0 &&
+          currentMinute === manualSelection.start;
+
+        // 在手动新增模式下，已存在的记录不能被点击
+        const isClickable = isManualAddMode
+          ? !hasActive && onManualSelect
+          : hasActive;
+
+        const handleSquareClick = (e) => {
+          // 在手动新增模式下，如果该方格已有记录，不允许点击
+          if (isManualAddMode && hasActive) {
+            return;
+          }
+          
+          // 在手动新增模式下，处理选择
+          if (isManualAddMode && !hasActive && onManualSelect) {
+            // 如果还没有选择开始点，设置开始点
+            if (manualSelection.start === 0) {
+              onManualSelect({ start: currentMinute, end: 0 });
+            } else if (manualSelection.end === 0) {
+              // 如果已经有开始点但还没有结束点，设置结束点
+              const newStart = Math.min(manualSelection.start, currentMinute);
+              const newEnd = Math.max(manualSelection.start, currentMinute);
+              onManualSelect({ start: newStart, end: newEnd });
+            } else {
+              // 如果已经有完整的选择，重新开始选择
+              onManualSelect({ start: currentMinute, end: 0 });
+            }
+            return;
+          }
+          
+          // 非手动新增模式下，点击已有记录
+          if (!isManualAddMode && hasActive) {
+            handleClickBox(activeRecord);
+          }
+        };
+
         columns.push(
           <div
-            onClick={() => {
-              if (hasActive) {
-                handleClickBox(activeRecord);
-              }
-            }}
+            onClick={handleSquareClick}
             key={`row_${currentMinute}`}
             className={classNames(
               { now: currentTimeMinute === currentMinute },
-              { squareActive: hasActive || isProcessing },
-              { squareDefaultStyle: !hasActive },
+              { squareActive: (hasActive || isProcessing) && !isManualAddMode },
+              { squareManualSelected: isManualSelected || isManualStartPoint },
+              { squareDefaultStyle: !hasActive && !isManualSelected && !isManualStartPoint },
               "square"
             )}
+            style={{
+              ...(isManualSelected || isManualStartPoint
+                ? { backgroundColor: "#3182ce", cursor: "pointer", zIndex: 10, pointerEvents: "auto" }
+                : isManualAddMode && !hasActive
+                ? { cursor: "pointer", zIndex: 5, pointerEvents: "auto" }
+                : hasActive && !isManualAddMode
+                ? { pointerEvents: "auto" }
+                : { pointerEvents: "auto" }),
+            }}
           />
         );
       }
@@ -121,6 +176,8 @@ function C({ recordList, handleClickBox, newRecord, action }) {
     newRecord,
     recordList,
     currentTimeMinute,
+    isManualAddMode,
+    manualSelection,
   ]);
 
   return <div className="grid-container">{grid}</div>;

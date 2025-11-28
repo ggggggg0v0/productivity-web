@@ -7,6 +7,7 @@ import {
   ChakraProvider,
   useDisclosure,
   Center,
+  Button,
 } from "@chakra-ui/react";
 import { CalendarIcon } from "@chakra-ui/icons";
 import { useEffect, useReducer, useState } from "react";
@@ -150,9 +151,82 @@ const reducer = (state, action) => {
         isIntervalRunning: false,
         action: nextAction,
         newRecord: { start: 0, end: 0 },
-        recordList: isWork && state.newRecord.start > 0 ? newRecordList : state.recordList,
-        selected: isWork && state.newRecord.start > 0 ? newRecord : state.selected,
+        recordList:
+          isWork && state.newRecord.start > 0
+            ? newRecordList
+            : state.recordList,
+        selected:
+          isWork && state.newRecord.start > 0 ? newRecord : state.selected,
       };
+    }
+
+    case "START_MANUAL_ADD":
+      return {
+        ...state,
+        isManualAddMode: true,
+        manualSelection: { start: 0, end: 0 },
+      };
+
+    case "END_MANUAL_ADD":
+      return {
+        ...state,
+        isManualAddMode: false,
+        manualSelection: { start: 0, end: 0 },
+      };
+
+    case "SET_MANUAL_SELECTION": {
+      const { start, end } = action.payload;
+
+      // 如果 end 为 0，表示只选择了开始点，不需要检查冲突
+      if (end === 0) {
+        return {
+          ...state,
+          manualSelection: { start, end: 0 },
+        };
+      }
+
+      // 确保 start <= end
+      const sortedStart = Math.min(start, end);
+      const sortedEnd = Math.max(start, end);
+
+      // 检查是否与已有记录冲突
+      const hasConflict = state.recordList.some((record) => {
+        return (
+          (sortedStart >= record.start && sortedStart <= record.end) ||
+          (sortedEnd >= record.start && sortedEnd <= record.end) ||
+          (sortedStart <= record.start && sortedEnd >= record.end)
+        );
+      });
+
+      if (hasConflict) {
+        return state; // 如果有冲突，不更新选择
+      }
+
+      return {
+        ...state,
+        manualSelection: { start: sortedStart, end: sortedEnd },
+      };
+    }
+
+    case "SAVE_MANUAL_RECORD": {
+      if (state.manualSelection.start > 0 && state.manualSelection.end > 0) {
+        const newRecord = {
+          ...state.manualSelection,
+          content: "",
+          tags: [],
+        };
+        const newRecordList = [...state.recordList, newRecord];
+        flowService.setRecordList(newRecordList);
+
+        return {
+          ...state,
+          recordList: newRecordList,
+          isManualAddMode: false,
+          manualSelection: { start: 0, end: 0 },
+          selected: newRecord,
+        };
+      }
+      return state;
     }
 
     default:
@@ -171,6 +245,8 @@ const initState = {
   time: defaultSelectedSetting.work,
   recordList: flowService.getRecordList(),
   newRecord: { start: 0, end: 0 },
+  isManualAddMode: false,
+  manualSelection: { start: 0, end: 0 },
 };
 
 function App() {
@@ -189,6 +265,8 @@ function App() {
       newRecord,
       workTime,
       relaxTime,
+      isManualAddMode,
+      manualSelection,
     },
     dispatch,
   ] = useReducer(reducer, initState);
@@ -274,6 +352,27 @@ function App() {
       }, 0);
     } else if (isIntervalRunning) {
       dispatch({ type: "FORCE_STOP_COUNTDOWN" });
+    }
+  };
+
+  const handleStartManualAdd = () => {
+    dispatch({ type: "START_MANUAL_ADD" });
+  };
+
+  const handleEndManualAdd = () => {
+    dispatch({ type: "END_MANUAL_ADD" });
+  };
+
+  const handleManualSelect = (selection) => {
+    dispatch({ type: "SET_MANUAL_SELECTION", payload: selection });
+  };
+
+  const handleSaveManualRecord = () => {
+    if (manualSelection.start > 0 && manualSelection.end > 0) {
+      dispatch({ type: "SAVE_MANUAL_RECORD" });
+      setTimeout(() => {
+        modalClosure.onOpen();
+      }, 0);
     }
   };
 
@@ -385,12 +484,41 @@ function App() {
           </Flex>
 
           <Flex alignItems="center" flexDirection="column">
+            {!isManualAddMode && (
+              <Button
+                onClick={handleStartManualAdd}
+                colorScheme="blue"
+                mb={2}
+                mt={2}
+              >
+                Sew
+              </Button>
+            )}
+            {isManualAddMode && (
+              <Flex gap={2} mb={4} mt={4}>
+                <Button
+                  onClick={handleSaveManualRecord}
+                  colorScheme="green"
+                  isDisabled={
+                    manualSelection.start === 0 || manualSelection.end === 0
+                  }
+                >
+                  完成
+                </Button>
+                <Button onClick={handleEndManualAdd} colorScheme="gray">
+                  取消
+                </Button>
+              </Flex>
+            )}
             <Box mt="60px">
               <TimeBox2
                 recordList={recordList}
                 newRecord={newRecord}
                 handleClickBox={handleClickBox}
                 action={action}
+                isManualAddMode={isManualAddMode}
+                manualSelection={manualSelection}
+                onManualSelect={handleManualSelect}
               />
             </Box>
           </Flex>
