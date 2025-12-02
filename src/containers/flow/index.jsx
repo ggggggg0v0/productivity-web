@@ -40,6 +40,10 @@ import "./moon.scss";
 const reducer = (state, action) => {
   switch (action.type) {
     case "START_COUNTDOWN":
+      // 如果 sew 模式启用，不允许开始倒数
+      if (state.isManualAddMode) {
+        return state;
+      }
       return {
         ...state,
         isIntervalRunning: true,
@@ -161,6 +165,10 @@ const reducer = (state, action) => {
     }
 
     case "START_MANUAL_ADD":
+      // 如果倒数正在进行，不允许启用 sew
+      if (state.isIntervalRunning) {
+        return state;
+      }
       return {
         ...state,
         isManualAddMode: true,
@@ -449,6 +457,7 @@ function App() {
                 onClick={
                   !isIntervalRunning ? startCountdown : triggerResetDialog
                 }
+                isDisabled={isManualAddMode}
                 icon={
                   !isIntervalRunning ? (
                     <ChevronRightIcon boxSize="4em" />
@@ -490,6 +499,7 @@ function App() {
                 colorScheme="blue"
                 mb={2}
                 mt={2}
+                isDisabled={isIntervalRunning}
               >
                 Sew
               </Button>

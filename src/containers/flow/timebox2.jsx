@@ -38,7 +38,6 @@ function C({
   const currentTimeMinute = useCurrentMinute();
 
   const generateTable = () => {
-    console.log("[generateTable] 开始渲染, manualSelection:", manualSelection);
     const numColumns = 24;
     const numRows = 60;
     // 生成包含方形 div 的數組
@@ -108,10 +107,6 @@ function C({
           (currentMinute === manualSelection.start ||
             currentMinute === manualSelection.end)
         ) {
-          console.log(
-            `[渲染] currentMinute: ${currentMinute} 显示蓝色, manualSelection:`,
-            manualSelection
-          );
         }
 
         // 检查是否是手动选择的开始点（即使 end 为 0）
@@ -134,23 +129,14 @@ function C({
 
           // 在手动新增模式下，处理选择
           if (isManualAddMode && onManualSelect) {
-            console.log(
-              "点击前 manualSelection:",
-              manualSelection,
-              "currentMinute:",
-              currentMinute
-            );
-
             // 如果已经有完整的选择（start > 0 且 end > 0），无论点击哪里都清除选择并重新开始
             if (manualSelection.start > 0 && manualSelection.end > 0) {
-              console.log("已有完整选择，清除并重新开始");
               onManualSelect({ start: currentMinute, end: 0 });
               return;
             }
 
             // 如果还没有选择开始点，设置开始点
             if (manualSelection.start === 0) {
-              console.log("设置开始点");
               onManualSelect({ start: currentMinute, end: 0 });
               return;
             }
@@ -159,7 +145,6 @@ function C({
             if (manualSelection.end === 0 && manualSelection.start > 0) {
               const newStart = Math.min(manualSelection.start, currentMinute);
               const newEnd = Math.max(manualSelection.start, currentMinute);
-              console.log("设置结束点，newStart:", newStart, "newEnd:", newEnd);
               onManualSelect({ start: newStart, end: newEnd });
               return;
             }
@@ -230,12 +215,6 @@ function C({
   const manualSelectionKey = `${manualSelection.start}-${manualSelection.end}`;
 
   const grid = useMemo(() => {
-    console.log(
-      "[useMemo] 重新计算, manualSelection:",
-      manualSelection,
-      "key:",
-      manualSelectionKey
-    );
     return generateTable();
   }, [
     action,
