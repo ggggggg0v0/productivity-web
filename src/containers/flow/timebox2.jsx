@@ -38,6 +38,7 @@ function C({
   const currentTimeMinute = useCurrentMinute();
 
   const generateTable = () => {
+    console.log("[generateTable] 开始渲染, manualSelection:", manualSelection);
     const numColumns = 24;
     const numRows = 60;
     // 生成包含方形 div 的數組
@@ -92,13 +93,26 @@ function C({
           newRecord.start < currentMinute &&
           currentTimeMinute > currentMinute;
 
-        // 检查是否在手动选择的范围内
+        // 检查是否在手动选择的范围内（只有当有完整选择时才显示蓝色）
         const isManualSelected =
           isManualAddMode &&
           manualSelection.start > 0 &&
           manualSelection.end > 0 &&
+          manualSelection.end > manualSelection.start &&
           currentMinute >= manualSelection.start &&
           currentMinute <= manualSelection.end;
+
+        // 调试信息：检查蓝色区域的显示（只打印关键点）
+        if (
+          isManualSelected &&
+          (currentMinute === manualSelection.start ||
+            currentMinute === manualSelection.end)
+        ) {
+          console.log(
+            `[渲染] currentMinute: ${currentMinute} 显示蓝色, manualSelection:`,
+            manualSelection
+          );
+        }
 
         // 检查是否是手动选择的开始点（即使 end 为 0）
         const isManualStartPoint =
@@ -119,20 +133,36 @@ function C({
           }
 
           // 在手动新增模式下，处理选择
-          if (isManualAddMode && !hasActive && onManualSelect) {
+          if (isManualAddMode && onManualSelect) {
+            console.log(
+              "点击前 manualSelection:",
+              manualSelection,
+              "currentMinute:",
+              currentMinute
+            );
+
+            // 如果已经有完整的选择（start > 0 且 end > 0），无论点击哪里都清除选择并重新开始
+            if (manualSelection.start > 0 && manualSelection.end > 0) {
+              console.log("已有完整选择，清除并重新开始");
+              onManualSelect({ start: currentMinute, end: 0 });
+              return;
+            }
+
             // 如果还没有选择开始点，设置开始点
             if (manualSelection.start === 0) {
+              console.log("设置开始点");
               onManualSelect({ start: currentMinute, end: 0 });
-            } else if (manualSelection.end === 0) {
-              // 如果已经有开始点但还没有结束点，设置结束点
+              return;
+            }
+
+            // 如果已经有开始点但还没有结束点，设置结束点
+            if (manualSelection.end === 0 && manualSelection.start > 0) {
               const newStart = Math.min(manualSelection.start, currentMinute);
               const newEnd = Math.max(manualSelection.start, currentMinute);
+              console.log("设置结束点，newStart:", newStart, "newEnd:", newEnd);
               onManualSelect({ start: newStart, end: newEnd });
-            } else {
-              // 如果已经有完整的选择，重新开始选择
-              onManualSelect({ start: currentMinute, end: 0 });
+              return;
             }
-            return;
           }
 
           // 非手动新增模式下，点击已有记录
@@ -141,14 +171,14 @@ function C({
           }
         };
 
-        // 确定背景色
-        let backgroundColor = "2a7864";
+        // 确定背景色（只在需要时设置，否则让 CSS 类控制）
+        let backgroundColor = undefined;
         if (isManualSelected || isManualStartPoint) {
-          backgroundColor = "#3182ce";
+          backgroundColor = "#3182ce"; // 蓝色
         } else if (currentTimeMinute === currentMinute) {
-          backgroundColor = "#576f69";
+          backgroundColor = "#576f69"; // 当前时间
         } else if ((hasActive || isProcessing) && !isManualAddMode) {
-          backgroundColor = "#2a7864";
+          backgroundColor = "#2a7864"; // 已有记录
         }
 
         columns.push(
@@ -166,7 +196,7 @@ function C({
               "square"
             )}
             style={{
-              backgroundColor,
+              ...(backgroundColor ? { backgroundColor } : {}),
               ...(isManualSelected || isManualStartPoint
                 ? { cursor: "pointer", zIndex: 10, pointerEvents: "auto" }
                 : isManualAddMode && !hasActive
@@ -196,13 +226,24 @@ function C({
     return grid;
   };
 
-  const grid = useMemo(generateTable, [
+  // 使用 JSON.stringify 确保对象变化时能正确触发重新计算
+  const manualSelectionKey = `${manualSelection.start}-${manualSelection.end}`;
+
+  const grid = useMemo(() => {
+    console.log(
+      "[useMemo] 重新计算, manualSelection:",
+      manualSelection,
+      "key:",
+      manualSelectionKey
+    );
+    return generateTable();
+  }, [
     action,
     newRecord,
     recordList,
     currentTimeMinute,
     isManualAddMode,
-    manualSelection,
+    manualSelectionKey,
   ]);
 
   return (
