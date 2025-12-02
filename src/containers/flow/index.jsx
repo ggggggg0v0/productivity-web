@@ -513,7 +513,8 @@ function App() {
                 {manualSelection.start > 0 && manualSelection.end > 0 && (
                   <Text color="white" fontSize="sm">
                     {timeFormat(manualSelection.start)} -{" "}
-                    {timeFormat(manualSelection.end)}
+                    {timeFormat(manualSelection.end)} (
+                    {manualSelection.end - manualSelection.start + 1} 分鐘)
                   </Text>
                 )}
                 {manualSelection.start > 0 && manualSelection.end === 0 && (
