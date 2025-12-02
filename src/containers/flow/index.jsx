@@ -30,7 +30,7 @@ import CalandarModal from "./modal_calandar";
 import { work, relax } from "./consts";
 
 // utils
-import { getCurrentMinute } from "@/utils/time";
+import { getCurrentMinute, timeFormat } from "@/utils/time";
 import { useAudio } from "@/utils/audio";
 
 // styles
@@ -398,10 +398,10 @@ function App() {
         selected={selected}
       />
       <CalandarModal {...modalCalandarClosure} />
-      <Center>
+      <Center bg="#242627" minH="100vh" w="100vw">
         <div
           className="App"
-          style={{ width: "1100px", height: "100vh", background: "#242627" }}
+          style={{ width: "1100px", minHeight: "100vh", background: "#242627" }}
         >
           {/* <Flex alignItems="end" flexDirection="column"> */}
           <Flex justifyContent="space-between" flexDirection="row">
@@ -495,22 +495,35 @@ function App() {
               </Button>
             )}
             {isManualAddMode && (
-              <Flex gap={2} mb={4} mt={4}>
-                <Button
-                  onClick={handleSaveManualRecord}
-                  colorScheme="green"
-                  isDisabled={
-                    manualSelection.start === 0 || manualSelection.end === 0
-                  }
-                >
-                  完成
-                </Button>
-                <Button onClick={handleEndManualAdd} colorScheme="gray">
-                  取消
-                </Button>
+              <Flex flexDirection="column" alignItems="center" mb={2} mt={4}>
+                <Flex gap={2} mb={2}>
+                  <Button
+                    onClick={handleSaveManualRecord}
+                    colorScheme="green"
+                    isDisabled={
+                      manualSelection.start === 0 || manualSelection.end === 0
+                    }
+                  >
+                    完成
+                  </Button>
+                  <Button onClick={handleEndManualAdd} colorScheme="gray">
+                    取消
+                  </Button>
+                </Flex>
+                {manualSelection.start > 0 && manualSelection.end > 0 && (
+                  <Text color="white" fontSize="sm">
+                    {timeFormat(manualSelection.start)} -{" "}
+                    {timeFormat(manualSelection.end)}
+                  </Text>
+                )}
+                {manualSelection.start > 0 && manualSelection.end === 0 && (
+                  <Text color="white" fontSize="sm">
+                    {timeFormat(manualSelection.start)}
+                  </Text>
+                )}
               </Flex>
             )}
-            <Box mt="60px">
+            <Box mt={isManualAddMode ? "20px" : "60px"} bg="transparent">
               <TimeBox2
                 recordList={recordList}
                 newRecord={newRecord}

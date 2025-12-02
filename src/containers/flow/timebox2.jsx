@@ -26,7 +26,15 @@ function checkHasActive(currentMinute, data) {
   return [hasActive, activeRecord];
 }
 
-function C({ recordList, handleClickBox, newRecord, action, isManualAddMode, manualSelection, onManualSelect }) {
+function C({
+  recordList,
+  handleClickBox,
+  newRecord,
+  action,
+  isManualAddMode,
+  manualSelection,
+  onManualSelect,
+}) {
   const currentTimeMinute = useCurrentMinute();
 
   const generateTable = () => {
@@ -64,6 +72,7 @@ function C({ recordList, handleClickBox, newRecord, action, isManualAddMode, man
         <div
           key={`hour_${column}`}
           className={classNames("square", "hourText")}
+          style={{ backgroundColor: "transparent" }}
         >
           {column + 1}
         </div>
@@ -90,7 +99,7 @@ function C({ recordList, handleClickBox, newRecord, action, isManualAddMode, man
           manualSelection.end > 0 &&
           currentMinute >= manualSelection.start &&
           currentMinute <= manualSelection.end;
-        
+
         // 检查是否是手动选择的开始点（即使 end 为 0）
         const isManualStartPoint =
           isManualAddMode &&
@@ -108,7 +117,7 @@ function C({ recordList, handleClickBox, newRecord, action, isManualAddMode, man
           if (isManualAddMode && hasActive) {
             return;
           }
-          
+
           // 在手动新增模式下，处理选择
           if (isManualAddMode && !hasActive && onManualSelect) {
             // 如果还没有选择开始点，设置开始点
@@ -125,12 +134,22 @@ function C({ recordList, handleClickBox, newRecord, action, isManualAddMode, man
             }
             return;
           }
-          
+
           // 非手动新增模式下，点击已有记录
           if (!isManualAddMode && hasActive) {
             handleClickBox(activeRecord);
           }
         };
+
+        // 确定背景色
+        let backgroundColor = "2a7864";
+        if (isManualSelected || isManualStartPoint) {
+          backgroundColor = "#3182ce";
+        } else if (currentTimeMinute === currentMinute) {
+          backgroundColor = "#576f69";
+        } else if ((hasActive || isProcessing) && !isManualAddMode) {
+          backgroundColor = "#2a7864";
+        }
 
         columns.push(
           <div
@@ -140,16 +159,18 @@ function C({ recordList, handleClickBox, newRecord, action, isManualAddMode, man
               { now: currentTimeMinute === currentMinute },
               { squareActive: (hasActive || isProcessing) && !isManualAddMode },
               { squareManualSelected: isManualSelected || isManualStartPoint },
-              { squareDefaultStyle: !hasActive && !isManualSelected && !isManualStartPoint },
+              {
+                squareDefaultStyle:
+                  !hasActive && !isManualSelected && !isManualStartPoint,
+              },
               "square"
             )}
             style={{
+              backgroundColor,
               ...(isManualSelected || isManualStartPoint
-                ? { backgroundColor: "#3182ce", cursor: "pointer", zIndex: 10, pointerEvents: "auto" }
+                ? { cursor: "pointer", zIndex: 10, pointerEvents: "auto" }
                 : isManualAddMode && !hasActive
                 ? { cursor: "pointer", zIndex: 5, pointerEvents: "auto" }
-                : hasActive && !isManualAddMode
-                ? { pointerEvents: "auto" }
                 : { pointerEvents: "auto" }),
             }}
           />
@@ -163,6 +184,10 @@ function C({ recordList, handleClickBox, newRecord, action, isManualAddMode, man
             { currentRow: getCurrentHour() === column },
             "row"
           )}
+          style={{
+            backgroundColor: "transparent",
+            display: "flex",
+          }}
         >
           {columns}
         </div>
@@ -180,7 +205,11 @@ function C({ recordList, handleClickBox, newRecord, action, isManualAddMode, man
     manualSelection,
   ]);
 
-  return <div className="grid-container">{grid}</div>;
+  return (
+    <div className="grid-container" style={{ backgroundColor: "transparent" }}>
+      {grid}
+    </div>
+  );
 }
 
 export default C;
