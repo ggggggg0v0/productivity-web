@@ -177,8 +177,8 @@ function C({
           backgroundColor = "#3182ce"; // 蓝色
         } else if (currentTimeMinute === currentMinute) {
           backgroundColor = "#576f69"; // 当前时间
-        } else if ((hasActive || isProcessing) && !isManualAddMode) {
-          backgroundColor = "#2a7864"; // 已有记录
+        } else if (hasActive || isProcessing) {
+          backgroundColor = "#2a7864"; // 已有记录（在手动新增模式下也保持绿色）
         }
 
         columns.push(
@@ -187,7 +187,7 @@ function C({
             key={`row_${currentMinute}`}
             className={classNames(
               { now: currentTimeMinute === currentMinute },
-              { squareActive: (hasActive || isProcessing) && !isManualAddMode },
+              { squareActive: hasActive || isProcessing },
               { squareManualSelected: isManualSelected || isManualStartPoint },
               {
                 squareDefaultStyle:
