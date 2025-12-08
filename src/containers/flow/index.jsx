@@ -460,7 +460,7 @@ function App() {
                 isDisabled={isManualAddMode}
                 icon={
                   !isIntervalRunning ? (
-                    <ChevronRightIcon boxSize="4em" />
+                    <ChevronRightIcon boxSize="4em" color="red.500" />
                   ) : (
                     <RepeatClockIcon boxSize="2em" />
                   )
@@ -496,7 +496,7 @@ function App() {
             {!isManualAddMode && (
               <Button
                 onClick={handleStartManualAdd}
-                colorScheme="blue"
+                colorScheme="#242627"
                 mb={2}
                 mt={2}
                 isDisabled={isIntervalRunning}
